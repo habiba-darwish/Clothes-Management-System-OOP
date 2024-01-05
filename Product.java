@@ -20,22 +20,33 @@ import java.util.Date;
 
 public class Product implements Serializable {
 
+    //static ArrayList<Product> ProductList = Product.readproductfromfile();
+    private static final long serialVersionUID = 1298945145135586532L;
     private String Name, size, color, description, Gender;
-    private Supplier s;
-    private int quantity, price, code, QuantitySold;
+    //private Supplier s;
+    private int quantity, price, code, QuantitySold,SupplierID;
 
-    public Product(String Name, String size, String color, String description, String Gender, int SupplierID, Supplier s, int quantity, int price, int code, int QuantitySold) {
+    public Product(String Name, String size, String color, String description, String Gender, int SupplierID, int quantity, int price, int code, int QuantitySold) {
         this.Name = Name;
         this.size = size;
         this.color = color;
         this.description = description;
         this.Gender = Gender;
-        this.s = s;
         this.quantity = quantity;
         this.price = price;
         this.code = code;
         this.QuantitySold = QuantitySold;
+        this.SupplierID=SupplierID;
     }
+
+    public void setSupplierID(int SupplierID) {
+        this.SupplierID = SupplierID;
+    }
+
+    public int getSupplierID() {
+        return SupplierID;
+    }
+
     public Product() {
 
     }
@@ -60,10 +71,9 @@ public class Product implements Serializable {
         return Gender;
     }
 
-
-    public Supplier getS() {
-        return s;
-    }
+//    public Supplier getS() {
+//        return s;
+//    }
 
     public int getQuantity() {
         return quantity;
@@ -101,9 +111,9 @@ public class Product implements Serializable {
         this.Gender = Gender;
     }
 
-    public void setS(Supplier s) {
-        this.s = s;
-    }
+//    public void setS(Supplier s) {
+//        this.s = s;
+//    }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
@@ -120,7 +130,6 @@ public class Product implements Serializable {
     public void setQuantitySold(int QuantitySold) {
         this.QuantitySold = QuantitySold;
     }
-
 
     public int getQuantitySold(Product product, int quantity) {
 
@@ -149,7 +158,7 @@ public class Product implements Serializable {
             FileInputStream i = new FileInputStream("product.dat");
             ObjectInputStream in = new ObjectInputStream(i);
             productList = (ArrayList<Product>) in.readObject();
-            in.close();
+            in.close();         
             i.close();
         } catch (ClassNotFoundException e) {
             System.out.println(e);
@@ -158,5 +167,10 @@ public class Product implements Serializable {
         }
         return productList;
     }
-}
 
+    @Override
+    public String toString() {
+        return "Product{" + "Name=" + Name + ", size=" + size + ", color=" + color + ", description=" + description + ", Gender=" + Gender + ", quantity=" + quantity + ", price=" + price + ", code=" + code +  '}';
+    }
+
+}
