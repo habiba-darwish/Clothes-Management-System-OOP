@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -88,7 +89,7 @@ public class Supplier implements Serializable  {
     public void viewSupplierproducts(Supplier supplier) {
         ArrayList<Product> productList = Product.readproductfromfile();
         for (Product product : productList) {
-            if (supplier == product.getS()) {
+            if (supplier.SupplierID == product.getSupplierID()) {
                 System.out.println("Product name:" + product.getName());
                 System.out.println("Product code" + product.getCode());
                 System.out.println("Product color" + product.getColor());
@@ -101,7 +102,7 @@ public class Supplier implements Serializable  {
         }
     }
 
-    public int getMaxOrders(Date startDate, Date endDate) {
+    public int getMaxOrders(LocalDate startDate, LocalDate endDate) {
         ArrayList<Supplier> SupplierList = Supplier.readsupplierfromfile();
         int maxOrders = 0;
         for (Supplier supplier : SupplierList) {
@@ -126,16 +127,16 @@ public class Supplier implements Serializable  {
         for (Supplier supplier : SupplierList) {
             double revenue = 0;
             for (Order order : supplier.SupplierOrderList) {
-                for(Product product:order.productCart){
-                int index =order.productCart.indexOf(product);
-                
-                if (product.getS() == supplier && order.getOrderDate().compareTo(startDate) >= 0 && order.getOrderDate().compareTo(endDate) <= 0) { //&& product.getOrderDate().compareTo(startDate) >= 0 && product.getOrderDate().compareTo(endDate) <= 0) {
-                    revenue += ProductQuantity.get(index) * product.getPrice();
-                }
-//                 if (product.getSupplierID() == (supplier.getSupplierID()) && order.getOrderDate().compareTo(startDate) >= 0 && order.getOrderDate().compareTo(endDate) <= 0) { //&& product.getOrderDate().compareTo(startDate) >= 0 && product.getOrderDate().compareTo(endDate) <= 0) {
+//                for(Product product:order.productCart){
+//                int index =order.productCart.indexOf(product);
+//                
+//                if (product.getS() == supplier && order.getOrderDate().compareTo(startDate) >= 0 && order.getOrderDate().compareTo(endDate) <= 0) { //&& product.getOrderDate().compareTo(startDate) >= 0 && product.getOrderDate().compareTo(endDate) <= 0) {
 //                    revenue += ProductQuantity.get(index) * product.getPrice();
 //                }
-                }
+////                 if (product.getSupplierID() == (supplier.getSupplierID()) && order.getOrderDate().compareTo(startDate) >= 0 && order.getOrderDate().compareTo(endDate) <= 0) { //&& product.getOrderDate().compareTo(startDate) >= 0 && product.getOrderDate().compareTo(endDate) <= 0) {
+////                    revenue += ProductQuantity.get(index) * product.getPrice();
+////                }
+//                }
             }
             if (revenue > maxRevenue) {
                 maxRevenue = revenue;
