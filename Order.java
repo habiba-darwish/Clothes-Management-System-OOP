@@ -1,48 +1,65 @@
-
-
-
 package clothes.management.system;
+
 import clothes.management.system.Product;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 //import java.util.LocalDateTime;
 import java.util.HashMap;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 /**
  *
  * @author a
  */
+public class Order implements Serializable {
+    private static final long serialVersionUID = 4352509969366909146L;
+    private static int currentOrderId = 0;
+    private int orderId;
+    private double totalAmount;
+    public int rating;
+    private LocalDate OrderDate;
+    private Customer c;
 
-public class Order{
-   private int orderId;
-     private double totalAmount;
-     public int rating; 
-     private Date OrderDate;
-   private Customer c;
-   
-   ArrayList<Product> productCart = new ArrayList<>();
-   ArrayList<Order> orders = new ArrayList<>();
-     //ArrayList<ArrayList<Product>>ProductCart= new ArrayList<ArrayList<Order>>();
-    
+    static ArrayList<Order> orders = Order.readProductCartfromfile();
+    HashMap<Integer, Integer> productCart = new HashMap<>();
+
     public Order() {
-        
+
     }
-    public Order(int orderId, double totalAmount, int rating, String customerName) {
+
+    public Order(int orderId, Customer customerName) {
         this.orderId = orderId;
-        this.totalAmount = totalAmount;
-        this.rating = rating;
+        this.totalAmount = 0;
+        this.rating = 0;
+        this.c = customerName;
+       
+
     }
+
+    
+    // A method to generate a new order id
+   
+    public Customer getC() {
+        return c;
+    }
+
+    public void setC(Customer c) {
+        this.c = c;
+    }
+    
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
@@ -68,30 +85,42 @@ public class Order{
         this.rating = rating;
     }
 
-    public void setOrderDate(Date OrderDate) {
-        this.OrderDate = OrderDate;
-    }
-
-    public Date getOrderDate() {
+    public LocalDate getOrderDate() {
         return OrderDate;
     }
 
-    
-    public LocalDateTime date(){
-    LocalDateTime date = LocalDateTime.now();
-    return date;
+    public void setOrderDate(LocalDate OrderDate) {
+        this.OrderDate = OrderDate;
     }
-      
-    void displayOrderDetails(Order order){
-    System.out.println("Order date: " + date());
-    System.out.println("Order Id" + orderId);
-    System.out.println("Total Amount" + totalAmount);
 
-}
-    
-    public static void writeProductCarttofile(ArrayList<Product> ProductCart) {
+    public LocalDateTime date() {
+        LocalDateTime date = LocalDateTime.now();
+        return date;
+    }
+
+    public LocalDate getDate() {
+        // Get the current date from the system clock
+        LocalDate date = LocalDate.now();
+        // Return the date
+        return date;
+    }
+
+    public String getDateAndTime() {
+        // Get the current date and time from the system clock
+        LocalDateTime date = LocalDateTime.now();
+        // Get the date part as a LocalDate object
+        LocalDate datePart = date.toLocalDate();
+        // Get the time part as a LocalTime object
+        LocalTime timePart = date.toLocalTime();
+        // Truncate the time to minutes
+        timePart = timePart.truncatedTo(ChronoUnit.MINUTES);
+        // Return a String that concatenates the date and the time with a separator
+        return datePart + " " + timePart;
+    }
+
+    public static void writeordertofile(ArrayList<Order> ProductCart) {
         try {
-            FileOutputStream outt = new FileOutputStream("ProductCart.dat");
+            FileOutputStream outt = new FileOutputStream("Order.dat");
             ObjectOutputStream out = new ObjectOutputStream(outt);
             out.writeObject(ProductCart);
             out.close();
@@ -101,27 +130,25 @@ public class Order{
         }
     }
 
-    public static ArrayList<Product> readProductCartfromfile() {
-        ArrayList<Product> ProductCart = new ArrayList<>();
+    public static ArrayList<Order> readProductCartfromfile() {
+        ArrayList<Order> ProductCart = new ArrayList<>();
 
         try {
-            FileInputStream inn = new FileInputStream("ProductCart.dat");
+            FileInputStream inn = new FileInputStream("Order.dat");
             ObjectInputStream in = new ObjectInputStream(inn);
-            ProductCart = (ArrayList<Product>) in.readObject();
+            ProductCart = (ArrayList<Order>) in.readObject();
             in.close();
             inn.close();
         } catch (Exception e) {
             System.out.println(e);
             return ProductCart;
-        } 
+        }
         return ProductCart;
-}
-    
-    public static void displayProductsordered(){
-        ArrayList<Product> productsordered=Order.readProductCartfromfile();
-          for (Product product : productsordered) {
-               System.out.println( product.getName());
-               
-            }
-    } 
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" + "orderId=" + orderId + ", totalAmount=" + totalAmount + ", rating=" + rating + ", OrderDate=" + OrderDate  + ", productCart=" + productCart + '}';
+    }
+
 }
