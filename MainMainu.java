@@ -16,13 +16,14 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.time.LocalDate;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 /**
  *
  * @author a
  */
 public class ClothesManagementSystem {
-
+    
     static Scanner input = new Scanner(System.in);
 
     /**
@@ -37,11 +38,11 @@ public class ClothesManagementSystem {
         System.out.println("enter userId");
         int userId = input.nextInt();
         System.out.println("enter userName");
-
+        
         String userName = input.next();
         Customer cus = new Customer(userId, userName, UserType.CUSTOMER);
         if (c == 1) {
-
+            
             cus.productordered = cus.readHistoryfromfile();
             cus.ViewCart();
         } else if (c == 2) {
@@ -53,7 +54,7 @@ public class ClothesManagementSystem {
             cus.viewOrderHistory(cus);
         } else if (c == 3) {
             System.out.println("enter userId");
-
+            
             cus.productordered = cus.readHistoryfromfile();
             cus.viewOrderHistory(cus);
             System.out.println("enter order id you want to rate");
@@ -64,78 +65,122 @@ public class ClothesManagementSystem {
             // cus.writeHistorytofile(cus.productordered);
 
         }
-
+        
     }//tested all
 
     static void cashierMenu() {
 
         Cashier c = new Cashier(2023, "Cashier", UserType.CASHIER);
-        System.out.println("enter customer userId that will place the order");
-        int userId = input.nextInt();
-        System.out.println("enter customer userName");
-        String userName = input.next();
-
-        Customer customer = new Customer(userId, userName, UserType.CUSTOMER);
-        customer.productordered = customer.readHistoryfromfile();
-        //still enhancing the generate order id function
-        System.out.println("enter order id");
-        int order_id = input.nextInt();
-        Order order = new Order(order_id, customer);
-
+        
         boolean x = true;
         while (x) {
             System.out.println("Cashier functions:");
-            System.out.println("1- Create new cart");
-            System.out.println("2- Add product to cart");
-            System.out.println("3- Remove product from cart");
-            System.out.println("4- View products in cart");
-            System.out.println("5- Calculate total payment");
-            System.out.println("6- Cancel cart");
-            System.out.println("7-return to main menu");
-
+            System.out.println("1- Place an order");
+            System.out.println("2- Cancel an order");
+            System.out.println("3- Return to main menu");
+            
             int A = input.nextInt();
-            if (A == 1) {
-                //c.createCart(order);
-                order.productCart = c.createCart();
-                order.setOrderDate(order.getDate());
-            } else if (A == 2) {
-                Admin ad = new Admin(555, "Admin1", UserType.ADMIN);
-                ad.displayProducts();
-                System.out.print("Enter code of product you want to add to cart: ");
-                int productCode = input.nextInt();
-                System.out.print("Enter quantity of product you want to add to cart: ");
-                int productQuantity = input.nextInt();
+            switch (A) {
+                case 1: // Sub menu for placing an order
+                    // Initialize the order object before reading from file
+                    System.out.println("enter customer userId that will place the order");
+                    int userId = input.nextInt();
+                    System.out.println("enter customer userName");
+                    String userName = input.next();
+                    
+                    Customer customer = new Customer(userId, userName, UserType.CUSTOMER);
+                    //customer.productordered = customer.readHistoryfromfile();
+                    //still enhancing the generate order id function
+                    System.out.println("enter order id");
+                    int order_id = input.nextInt();
+                    //Order order = new Order(order_id, customer);
 
-                c.addProductToCart(productCode, order, productQuantity);
-               
+                    Order order = new Order(order_id, customer);
+                    // Read the order from file
 
-            } else if (A == 3) {
-                c.displayProductsInCart(order);
-                System.out.print("Enter code of product you want to remove from cart: ");
-                int productCode = input.nextInt();
-                c.removeProductFromCart(productCode, order);
-
-            } else if (A == 4) {
-                c.displayProductsInCart(order);
-            } else if (A == 5) {
-                c.calculateTotalPayment(order);
-            } else if (A == 6) {
-
-                c.cancelCart(order.getOrderId());
-            } else if (A == 7) {
-                x = false;
-                break;
+                    boolean y = true;
+                    while (y) {
+                        System.out.println("Place an order functions:");
+                        System.out.println("1- Create new cart");
+                        System.out.println("2- Add product to cart");
+                        System.out.println("3- Remove product from cart");
+                        System.out.println("4- View products in cart");
+                        System.out.println("5- Calculate total payment");
+                        System.out.println("6- Place order");
+                        System.out.println("7- Return to cashier menu");
+                        
+                        int B = input.nextInt();
+                        if (B == 1) {
+                            c.createCart(order);
+                            //order.productCart = c.createCart();
+                            
+                        } else if (B == 2) {
+                            Admin ad = new Admin(555, "Admin1", UserType.ADMIN);
+                            ad.displayProducts();
+                            System.out.print("Enter code of product you want to add to cart: ");
+                            int productCode = input.nextInt();
+                            System.out.print("Enter quantity of product you want to add to cart: ");
+                            int productQuantity = input.nextInt();
+                            
+                            c.addProductToCart(productCode, order, productQuantity);
+                        } else if (B == 3) {
+                            c.displayProductsInCart(order);
+                            System.out.print("Enter code of product you want to remove from cart: ");
+                            int productCode = input.nextInt();
+                            c.removeProductFromCart(productCode, order);
+                            
+                        } else if (B == 4) {
+                            c.displayProductsInCart(order);
+                        } else if (B == 5) {
+                            c.calculateTotalPayment(order);
+                        } else if (B == 6) {
+                            //cashier must call this to save the order record
+                            c.placeOrder(order, customer);
+                            
+                        } else if (B == 7) {
+                            y = false;
+                            break;
+                        }
+                    }
+                    
+                    break;
+                case 2: // Sub menu for cancelling an order
+                    boolean z = true;
+                    while (z) {
+                        System.out.println("Cancel an order functions:");
+                        System.out.println("1- Enter the order id and customer info you want to cancel");
+                        System.out.println("2- Return to cashier menu");
+                        
+                        int C = input.nextInt();
+                        if (C == 1) {
+                            System.out.println("enter customer userId that you will cancel the order for");
+                            int user_Id = input.nextInt();
+                            System.out.println("enter customer userName");
+                            String user_Name = input.next();
+                            
+                            Customer customer_cancel = new Customer(user_Id, user_Name, UserType.CUSTOMER);
+                            
+                            System.out.print("Enter the order id you want to cancel: ");
+                            int orderId = input.nextInt();
+                            c.cancelCart(orderId, customer_cancel);
+                            
+                        } else if (C == 2) {
+                            z = false;
+                            break;
+                        }
+                    }
+                    break;
+                case 3:
+                    x = false;
+                    break;
             }
         }
-//        Order.orders.add(order);
-//        Order.writeordertofile(Order.orders);
-//        c.AddOrderToCustomer(customer, order);
-
+        
     }
 
     static void adminMenu() {
         Admin admin = new Admin(0, "Admin", UserType.ADMIN);
-
+        
         System.out.println("Admin functions:");
         System.out.println("1- Add User");
         System.out.println("2- Remove User");
@@ -149,14 +194,14 @@ public class ClothesManagementSystem {
         System.out.println("9- Search Product");
         System.out.println("10- view all Products");
         System.out.println("11- view all orders");
-
+        
         System.out.println("");
-        /* System.out.println("15- View Product Reports");
+        System.out.println("15- View Product Reports");
         System.out.println("16- View User Reports");
         System.out.println("17- View Order Reports");
-        System.out.println("18- View Order Detail");*/
+        System.out.println("18- View Order Detail");
         int B = input.nextInt();
-
+        
         if (B == 1) {
             System.out.println("Enter the username of the user you want to add:");
             String username = input.next();
@@ -196,25 +241,25 @@ public class ClothesManagementSystem {
         } else if (B == 6) {
             System.out.println("Enter the name of the product you want to add:");
             String product_name = input.next();
-
+            
             System.out.println("Enter the size of the product:");
             String product_size = input.next();
-
+            
             System.out.println("Enter the color of the product:");
             String product_color = input.next();
-
+            
             System.out.println("Enter the description of the product:");
             String product_description = input.next();
-
+            
             System.out.println("Enter the gender for the product:");
             String product_gender = input.next();
-
+            
             System.out.println("Enter the quantity for the product:");
             int product_quantity = input.nextInt();
-
+            
             System.out.println("Enter the price for the product:");
             int product_price = input.nextInt();
-
+            
             System.out.println("Enter the code for the product:");
             int product_code = input.nextInt();
 
@@ -246,7 +291,7 @@ public class ClothesManagementSystem {
                 } else if (option == 5) {
                     admin.editProductString(code, option, s);
                 }
-
+                
             } else if (o == 2) {
                 System.out.println("choose the id of the user you want to edit :");
                 int code = input.nextInt();
@@ -260,9 +305,9 @@ public class ClothesManagementSystem {
                 } else if (option == 3) {
                     admin.editProductInt(code, option, newint);
                 }
-
+                
             }
-
+            
         } else if (B == 9) {
             System.out.println("choose the code of the product you want to see :");
             B = input.nextInt();
@@ -271,98 +316,36 @@ public class ClothesManagementSystem {
             admin.displayProducts();
         } else if (B == 11) {
             admin.ViewOrders();
-
+            
+        } else if (B == 12) {
+            System.out.println("Enter a start date in the format yyyy-MM-dd:");
+            String startdate = input.nextLine();
+//            System.out.println("Enter a end date in the format yyyy-MM-dd:");
+//            String enddate = input.nextLine();
+// Parse the input String to a LocalDate object
+//format 2024-01-05
+            LocalDate date1 = LocalDate.parse(startdate);
+            //LocalDate date2 = LocalDate.parse(enddate);
+// Print the date
+            //System.out.println("The date you entered is: " + startdate);
+            // int max = admin.no_of_pieces_sold(LocalDate.MAX, LocalDate.MAX);
+            //System.out.println("no of pieces =  " + max);
+            System.out.println("The date you entered is: " + date1);
         }
     }
-
     
     public static void main(String[] args) {
 
-        //-----------------------------------Supply Products---------------------------------------------------------------
-        // create supplier instatnce that supply these products
-        //Supplier s = new Supplier();
-//        //create product object
-        // Product p = new Product("TSHIRT", "Xl", "White", "cotton", "Female", 123, 100, 250, 789, 0);
-        //Product p2 = new Product("Pants", "l", "Black", "Cargo", "MALE", 123, 150, 200, 123, 0);
-//        //declare arrayList of products and read products from file
-        // ArrayList<Product> productList = Product.readproductfromfile();
-//        //add products to arraylist
-//        productList.add(p);
-//        productList.add(p2);
-        //write ArrayList to file
-        //Product.writeproducttofile(productList);
-        //create new ArrayList           
-        // ArrayList<Product> producttry = Product.readproductfromfile();
-        // read files to arrayList
-        //producttry=Product.readproductfromfile();
-        //print ArrayList
-//        for (Product p3 : producttry) {
-//            System.out.println("Product name:" + " " + p3.getName());
-//            System.out.println("Product code" + " " + p3.getCode());
-//            System.out.println("Product color" + " " + p3.getColor());
-//            System.out.println("Product description" + " " + p3.getDescription());
-//            System.out.println("Product size" + " " + p3.getSize());
-//            System.out.println("Product gender" + " " + p3.getGender());
-//            System.out.println("Product price" + " " + p3.getPrice());
-//            System.out.println("Product quantity" + " " + p3.getQuantity());
-//            System.out.println("--------------------------------------------------------------");
-//        }
-        //Admin ad = new Admin(555, "Admin1", UserType.ADMIN);
-        //ad.displayProducts();
-// --------------------------------Orders related functions-------------------------------------------------------------
-        // Cashier c = new Cashier(123, "Cashier1", UserType.CASHIER);
-        //Customer customer = new Customer(567, "Walaa", UserType.CUSTOMER);
-        //customer.productordered = customer.readHistoryfromfile();
-        //Order order = new Order(6666, customer);
-//
-//        order.productCart = c.createCart();
-//////  
-//        c.addProductToCart(789, order, 10);
-//        c.addProductToCart(123, order, 1);
-//        c.calculateTotalPayment(order);
-//        order.setOrderDate(order.getDate());
-//        c.displayProductsInCart(order);
-        //Admin ad = new Admin(555, "Admin1", UserType.ADMIN);
-        //ad.displayProducts();
-        // c.removeProductFromCart(p.getCode(), order);
-//    
-//       
-//customer.ViewCart();
-        //c.displayProductsInCart(order);
-        // customer.rateOrder(order, 5);
-        // c.cancelCart(6666);
         
-        // ------------------------defferent format to get date--------------------------------------- 
-//        LocalDateTime d= order.date();
-//        System.out.println(d+"/n");
-//        
-//        String time=order.getDateAndTime();
-//        System.out.println("the current date and time = " +time);
-//       
-//        
-//        LocalDate date=order.getDate();
-//        System.out.println(order.getDate());
-//        
-        //---------------------------------- add order to lists and Write lists to file----------------------------------
-//        Order.orders.add(order);
-//       Order.writeordertofile(Order.orders);
-//        c.AddOrderToCustomer(customer, order);
-//--------------- display history from file ---------------------------------------
-//        Order.orders=Order.readProductCartfromfile();
-//        for(Order o:Order.orders){
-//        c.displayProductsInCart(o);
-//        }
-        // customer.productordered = customer.readHistoryfromfile();
-        //customer.viewOrderHistory(customer);
         while (true) {
             try {
                 System.out.println("Select your role:");
                 System.out.println("1- Enter as an Admin");
                 System.out.println("2- Enter as a Cashier");
                 System.out.println("3- Enter as a Customer");
-
+                
                 int x = input.nextInt();
-
+                
                 switch (x) {
                     case 1:
                         adminMenu();
@@ -382,5 +365,6 @@ public class ClothesManagementSystem {
                 input.nextLine();
             }
         }
+        
     }
 }
