@@ -2,7 +2,10 @@ package clothes.management.system;
 
 import clothes.management.system.User;
 import clothes.management.system.UserType;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.Map;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -281,27 +284,51 @@ public class Admin extends User {
             System.out.println("No Product with code :" + code);
         }
     }
-    public void ViewOrders(){
-    Cashier c = new Cashier(123, "Cashier1", UserType.CASHIER);
-     Order.orders=Order.readProductCartfromfile();
-        for(Order o:Order.orders){
-        c.displayProductsInCart(o);
+
+    public void ViewOrders() {
+        Cashier c = new Cashier(123, "Cashier1", UserType.CASHIER);
+        Order.orders = Order.readProductCartfromfile();
+        for (Order o : Order.orders) {
+            c.displayProductsInCart(o);
         }
     }
 
-    /*          
-    void viewProductReports(Date startDate, Date endDate,Product product) 
-    {       
+    int no_of_pieces_sold(LocalDate startDate, LocalDate endDate) {
+        int no_of_pieces = 0;
+        for (Order order : Order.orders) {
+            if (order.getOrderDate().equals(null)) {
+                continue;
+            }
+            // A possible fix for the code
+            if ((order.getOrderDate().isAfter(startDate) || order.getOrderDate().isEqual(startDate)) && (order.getOrderDate().isBefore(endDate) || order.getOrderDate().isEqual(endDate))) {
+                // Do something
+
+                for (Map.Entry<Integer, Integer> entry : order.productCart.entrySet()) {
+                    //product code
+                    int key = entry.getKey();
+                    //quantity
+                    int value = entry.getValue();
+                    no_of_pieces += value;
+
+                }
+            }
+
+        }
+        return no_of_pieces;
     }
-    void viewUserReports(Date startDate, Date endDate, User user,Product product, Supplier supplier, customer c,cashier ca) 
-    {       
+
+    void viewProductReports(LocalDate startDate, LocalDate endDate, Product product) {
+
     }
-    void viewOrderReports(Date startDate, Date endDate,Order order) 
-    {
+
+    void viewUserReports(LocalDate startDate, LocalDate endDate, User user, Product product, Supplier supplier, Customer c, Cashier ca) {
     }
-    void viewOrderDetails(Order order) 
-    {
-        System.out.println("Order ID: " + order.getOrderId() + ", Total Amount: " + order.getTotalAmount());        
+
+    void viewOrderReports(LocalDate startDate, LocalDate endDate, Order order) {
     }
-     */
+
+    void viewOrderDetails(Order order) {
+        System.out.println("Order ID: " + order.getOrderId() + ", Total Amount: " + order.getTotalAmount());
+    }
+
 }
