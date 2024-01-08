@@ -8,6 +8,9 @@
  */
 package clothes.management.system;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,39 +40,33 @@ public class Cashier extends User {
         this.userName = cashierName;
     }
 
-    public HashMap<Integer, Integer> createCart() {
-        HashMap<Integer, Integer> productCart = new HashMap<>();
-        return productCart;
-    }//tested
+  
 
     public void createCart(Order order) {
-        HashMap<Integer, Integer> productCart = order.productCart;
+        order.setOrderDate(order.getDate());
         System.out.println("Cart created successfully");
     }
 
     public void addProductToCart(int productid, Order order, int quantity) {
         boolean found = false;
-       
+
         ArrayList<Product> productList = Product.readproductfromfile();
-     
+
         for (Product product : productList) {
-          
+
             if (product.getCode() == productid && product.getQuantity() > quantity) {
                 order.productCart.put(product.getCode(), quantity);
                 System.out.println("Product added to cart: " + product.getName());
-                product.setQuantity(product.getQuantity() - quantity);
-                product.setQuantitySold(product.getQuantitySold() + quantity);
-                Product.writeproducttofile(productList);
-                found=true;
+                found = true;
                 break;
             }
         }
-        if(!found){
-        System.out.println("no product found with this code or no quantity available ");
+        if (!found) {
+            System.out.println("no product found with this code or no quantity available ");
         }
     }//tested
 
-    //Admin and customer have access to view product in cart
+
     public void displayProductsInCart(Order order) {
         if (order.productCart == null || order.productCart.isEmpty()) {
             System.out.println("No products found in the cart");
@@ -156,33 +153,85 @@ public class Cashier extends User {
 
         }
         order.setTotalAmount(totalPayment);
-        //System.out.println("Total payment: " + totalPayment);
+        System.out.println("Total payment: " + totalPayment);
         return totalPayment;
     }//tested
 
-    public void cancelCart(int id) {
-
+    public void cancelCart(int order_id, Customer customer) {
+//avoiding the ConcurrentModificationException
         ListIterator<Order> iterator = Order.orders.listIterator();
 
-        // Use the iterator to iterate over the list
-        while (iterator.hasNext()) {
-            // Get the next order
-            Order o = iterator.next();
+        LocalDate date2 = LocalDate.now();
 
-            // Check if the order id matches the given id
-            if (o.getOrderId() == id) {
-                // Remove the order from the list using the iterator
-                o.productCart.clear();
-                iterator.remove();
-                // Remove the order from the customer's product ordered list
-                
-                o.getC().productordered.remove(o);
-                Order.writeordertofile(Order.orders);
-                o.getC().writeHistorytofile(o.getC().productordered);
+        boolean orderFound = false;
+
+        while (iterator.hasNext()) {
+
+            Order o = iterator.next();
+            if (o.getOrderId() == order_id) {
+                orderFound = true;
+                LocalDate date = o.getDate();
+                long date3 = ChronoUnit.DAYS.between(date, date2);
+                System.out.println("the order was placed " + date3 + " days ago");
+
+                if (date3 < 5) {
+                    customer.productordered = customer.readHistoryfromfile();
+                    for (Order order : customer.productordered) {
+                        if (order.getOrderId() == order_id) {
+                            customer.productordered.remove(order);
+                            break;
+                        }
+
+                    }
+                    customer.writeHistorytofile(customer.productordered);
+                    iterator.remove();
+                    Order.writeordertofile(Order.orders);
+                    ArrayList<Product> productList = Product.readproductfromfile();
+                    for (Map.Entry<Integer, Integer> entry : o.productCart.entrySet()) {
+                        int productCode = entry.getKey();
+                        int productQuantity = entry.getValue();
+                        for (Product product : productList) {
+                            if (product.getCode() == productCode) {
+                                product.setQuantity(product.getQuantity() + productQuantity);
+                                product.setQuantitySold(product.getQuantitySold() - productQuantity);
+                                break;
+                            }
+                        }
+                    }
+                    Product.writeproducttofile(productList);
+                    System.out.println("cart cancelled");
+                } else {
+                    System.out.println("order cancellation expired after 5 days");
+                }
+                break;
             }
         }
-        System.out.println("cart cancelled");
 
+        if (!orderFound) {
+            System.out.println("order id not found");
+        }
     }
 
+    //place an order and write it to file
+    public void placeOrder(Order order, Customer customer) {
+        ArrayList<Product> productList = Product.readproductfromfile();
+        for (Map.Entry<Integer, Integer> entry : order.productCart.entrySet()) {
+            int productCode = entry.getKey();
+            int productQuantity = entry.getValue();
+            for (Product product : productList) {
+                if (product.getCode() == productCode) {
+                    product.setQuantity(product.getQuantity() - productQuantity);
+                    product.setQuantitySold(product.getQuantitySold() + productQuantity);
+                    Product.writeproducttofile(productList);
+                    break;
+                }
+            }
+        }
+
+        customer.productordered = customer.readHistoryfromfile();
+        Order.orders.add(order);
+        Order.writeordertofile(Order.orders);
+        this.AddOrderToCustomer(customer, order);
+        System.out.println("Order placed successfully");
+    }
 }
